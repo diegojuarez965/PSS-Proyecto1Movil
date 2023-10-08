@@ -3,6 +3,8 @@ package login.controller
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import login.model.LoginModel
+import login.model.entities.User
+import login.model.entities.User.ClientUser
 import login.view.LoginUiEvent
 import login.view.LoginView
 import observers.Observer
@@ -35,6 +37,7 @@ internal class LoginControllerImpl(
         GlobalScope.launch {
             loginModel.getUser(loginView.uiState.user, loginView.uiState.password)
         }
+
     }
 
     private fun recoverPassword() {}

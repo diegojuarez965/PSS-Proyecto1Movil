@@ -1,13 +1,14 @@
 package login.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.ospifakmobileversion.R
@@ -37,6 +38,7 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     private lateinit var password: EditText
     private lateinit var recoverPassword: Button
     private lateinit var singIn: Button
+    private lateinit var loading: ProgressBar
 
     override val uiEventObservable: Observable<LoginUiEvent> = onActionSubject
     override var uiState: LoginUiState = LoginUiState()
@@ -70,6 +72,7 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         password = findViewById(R.id.password)
         recoverPassword = findViewById(R.id.recover_password)
         singIn = findViewById(R.id.login)
+        loading = findViewById(R.id.loading)
     }
 
     private fun initListeners() {
@@ -81,6 +84,7 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         }
 
         singIn.setOnClickListener {
+            switchLoadingVisibility()
             updateUser()
             hideKeyboard(username)
             updatePassword()
@@ -106,21 +110,29 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     }
 
     private fun loginResult(user: User) {
+        switchLoadingVisibility()
         this.user = user
         updateResult(user)
-        if(uiState.validUser) {
-            navigateToInitialWindow(uiState.user)
-        }
-        else {
+        if(!uiState.validUser) {
             showErrorMessage(uiState.error)
         }
-
     }
 
     private fun updateResult(user: User) {
         uiState = when(user) {
             is ClientUser -> uiState.copy(validUser = true, error = "")
             EmptyUser -> uiState.copy(validUser = false, error = "Fallo al iniciar sesión")
+        }
+    }
+
+    private fun switchLoadingVisibility() {
+        runOnUiThread {
+            if(loading.isVisible) {
+                loading.visibility = View.INVISIBLE
+            }
+            else {
+                loading.visibility = View.VISIBLE
+            }
         }
     }
 

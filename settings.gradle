@@ -14,7 +14,7 @@ dependencyResolutionManagement {
 }
 
 include ':app'
-include 'observer'
+include ':observer'
 
 rootProject.name = "OSPIFAK Mobile version"
 
