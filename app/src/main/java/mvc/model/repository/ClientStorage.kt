@@ -1,9 +1,9 @@
-package login.model.repository
+package mvc.model.repository
 
 import io.github.jan.supabase.*
 import io.github.jan.supabase.postgrest.postgrest
-import login.model.entities.User
-import login.model.entities.User.ClientUser
+import mvc.model.entities.User
+import mvc.model.entities.User.ClientUser
 
 interface ClientStorage {
 

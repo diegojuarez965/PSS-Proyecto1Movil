@@ -1,8 +1,8 @@
-package login.model.entities
+package mvc.model.entities
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Date
+
 sealed class User {
     @Serializable
     data class ClientUser(

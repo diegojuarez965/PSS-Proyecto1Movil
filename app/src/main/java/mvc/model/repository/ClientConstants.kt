@@ -1,4 +1,4 @@
-package login.model.repository
+package mvc.model.repository
 
 const val CLIENTS_TABLE = "clientes"
 

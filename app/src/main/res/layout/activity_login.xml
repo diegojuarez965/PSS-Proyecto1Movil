@@ -6,7 +6,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="login.view.LoginViewActivity">
+    tools:context="mvc.view.login.LoginViewActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"

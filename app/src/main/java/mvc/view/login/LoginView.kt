@@ -1,6 +1,5 @@
-package login.view
+package mvc.view.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -12,11 +11,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.ospifakmobileversion.R
-import login.model.LoginModel
-import login.model.LoginModelInjector
-import login.model.entities.User
-import login.model.entities.User.ClientUser
-import login.model.entities.User.EmptyUser
+import mvc.model.AppModel
+import mvc.model.AppModelInjector
+import mvc.view.AppViewInjector
 import observers.Observable
 import observers.Subject
 
@@ -31,8 +28,7 @@ interface LoginView {
 internal class LoginViewActivity: AppCompatActivity(), LoginView {
     private val onActionSubject = Subject<LoginUiEvent>()
 
-    private lateinit var loginModel: LoginModel
-    private lateinit var user: User
+    private lateinit var appModel: AppModel
     private lateinit var title: TextView
     private lateinit var username: EditText
     private lateinit var password: EditText
@@ -44,7 +40,7 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     override var uiState: LoginUiState = LoginUiState()
 
     override fun navigateToInitialWindow(user: String) {
-        TODO("Not yet implemented")
+        print(user)
     }
 
     override fun navigateToRecoverPassword() {
@@ -62,8 +58,8 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     }
 
     private fun initModule() {
-        LoginViewInjector.init(this)
-        loginModel = LoginModelInjector.getLoginModel()
+        AppViewInjector.init(this)
+        appModel = AppModelInjector.getLoginModel()
     }
 
     private fun initProperties() {
@@ -89,13 +85,14 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
             hideKeyboard(username)
             updatePassword()
             hideKeyboard(password)
+            switchSingInButton()
 
             notifySingInAction()
         }
     }
 
     private fun initObservers() {
-        loginModel.userObservable.subscribe {
+        appModel.loginObservable.subscribe {
             value -> loginResult(value)
         }
 
@@ -109,20 +106,36 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         uiState = uiState.copy(password = password.text.toString())
     }
 
-    private fun loginResult(user: User) {
+    private fun loginResult(result: Boolean) {
         switchLoadingVisibility()
-        this.user = user
-        updateResult(user)
-        if(!uiState.validUser) {
-            showErrorMessage(uiState.error)
+        updateResult(result)
+        showMessage()
+        if(!result) {
+            switchSingInButton()
         }
     }
 
-    private fun updateResult(user: User) {
-        uiState = when(user) {
-            is ClientUser -> uiState.copy(validUser = true, error = "")
-            EmptyUser -> uiState.copy(validUser = false, error = "Fallo al iniciar sesión")
+    private fun updateResult(result: Boolean) {
+        if(result) {
+            updateSuccesSingIn()
         }
+        else {
+            updateFailSingIn()
+        }
+    }
+
+    private fun updateSuccesSingIn() {
+        uiState = uiState.copy(
+            validUser = true,
+            resultInfo = "Ingreso exitoso"
+        )
+    }
+
+    private fun updateFailSingIn() {
+        uiState = uiState.copy(
+            validUser = false,
+            resultInfo = "Fallo al iniciar sesión"
+        )
     }
 
     private fun switchLoadingVisibility() {
@@ -136,15 +149,21 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         }
     }
 
-    private fun showErrorMessage(errorString: String) {
+    private fun showMessage() {
         runOnUiThread {
-            Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, uiState.resultInfo, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun hideKeyboard(view: View) {
         (this@LoginViewActivity.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    private fun switchSingInButton() {
+        runOnUiThread {
+            singIn.isEnabled = !singIn.isEnabled
         }
     }
 

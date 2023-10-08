@@ -14,7 +14,7 @@
         android:theme="@style/Theme.OSPIFAKMobileVersion"
         tools:targetApi="31">
         <activity
-            android:name="login.view.LoginViewActivity"
+            android:name="mvc.view.login.LoginViewActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
