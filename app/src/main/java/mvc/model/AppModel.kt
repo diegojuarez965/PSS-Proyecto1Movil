@@ -10,7 +10,7 @@ interface AppModel {
 
     suspend fun isRegisteredUser(username: String, password: String)
 
-    fun getClient(username: String): User
+    fun getClient():User
 }
 
 class AppModelImpl(private val repository: ClientRepository): AppModel {
@@ -22,9 +22,7 @@ class AppModelImpl(private val repository: ClientRepository): AppModel {
         }
     }
 
-    override fun getClient(username: String): User {
-        return repository.getClient()
-    }
-
+    override fun getClient() =
+        repository.getClient()
 
 }

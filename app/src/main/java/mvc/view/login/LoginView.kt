@@ -1,5 +1,6 @@
 package mvc.view.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -14,6 +15,7 @@ import com.example.ospifakmobileversion.R
 import mvc.model.AppModel
 import mvc.model.AppModelInjector
 import mvc.view.AppViewInjector
+import mvc.view.inicio.InicioViewActivity
 import observers.Observable
 import observers.Subject
 
@@ -40,7 +42,9 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     override var uiState: LoginUiState = LoginUiState()
 
     override fun navigateToInitialWindow(user: String) {
-        print(user)
+        val intent = Intent(this, InicioViewActivity::class.java)
+        intent.putExtra(InicioViewActivity.CLIENTE_NAME_EXTRA, user)
+        startActivity(intent)
     }
 
     override fun navigateToRecoverPassword() {
@@ -95,7 +99,6 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         appModel.loginObservable.subscribe {
             value -> loginResult(value)
         }
-
     }
 
     private fun updateUser() {
@@ -118,6 +121,7 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     private fun updateResult(result: Boolean) {
         if(result) {
             updateSuccesSingIn()
+            navigateToInitialWindow(uiState.user)
         }
         else {
             updateFailSingIn()
