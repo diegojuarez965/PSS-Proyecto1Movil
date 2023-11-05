@@ -7,15 +7,15 @@ import mvc.view.login.LoginUiEvent
 import mvc.view.login.LoginView
 import observers.Observer
 
-interface LoginController {
+interface AppController {
     fun setLoginView(loginView: LoginView)
     fun setHomeView(homeView: LoginView)
     fun setRecoveryView(recoveryView: LoginView)
 }
 
-internal class LoginControllerImpl(
+internal class AppControllerImpl(
     private val appModel: AppModel
-): LoginController {
+): AppController {
 
     private lateinit var loginView: LoginView
     private lateinit var homeView: LoginView

@@ -1,4 +1,4 @@
-package mvc.view.inicio;
+package mvc.view.home;
 
 sealed class InicioUiEvent {
 

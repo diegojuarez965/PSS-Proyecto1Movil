@@ -27,7 +27,9 @@ sealed class User {
         @SerialName("contrasena")
         val contrasena: String,
         @SerialName("nombre_plan")
-        val nombre_plan: String
+        val nombre_plan: String,
+        @SerialName("id_plan")
+        val id_plan: Int
     ): User()
 
     object EmptyUser: User()

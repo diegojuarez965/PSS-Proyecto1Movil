@@ -12,7 +12,7 @@ object AppModelInjector {
     private lateinit var appModel: AppModel
     private val supabaseClient: SupabaseClient = SupabaseClientInjector.makeClient()
 
-    fun getLoginModel(): AppModel {
+    fun getAppModel(): AppModel {
         return appModel
     }
 

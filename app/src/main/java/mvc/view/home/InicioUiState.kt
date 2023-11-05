@@ -1,4 +1,4 @@
-package mvc.view.inicio
+package mvc.view.home
 
 
 data class InicioUiState(
@@ -12,5 +12,4 @@ data class InicioUiState(
     var domicilio: String = "",
     var dni: Int = 0,
     var email: String = ""
-
 )

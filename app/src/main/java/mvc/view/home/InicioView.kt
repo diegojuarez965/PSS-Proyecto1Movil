@@ -1,13 +1,23 @@
-package mvc.view.inicio
+package mvc.view.home
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
-import android.widget.Button
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.example.ospifakmobileversion.R
+import com.google.android.material.navigation.NavigationView
 import mvc.model.AppModel
 import mvc.model.AppModelInjector
 import mvc.model.entities.User
+import mvc.view.login.LoginViewActivity
 import observers.Observable
 import observers.Subject
 
@@ -16,23 +26,25 @@ interface InicioView{
     var uiState:InicioUiState
 }
 
-class InicioViewActivity: InicioView, AppCompatActivity() {
+class InicioViewActivity: InicioView, AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val onActionSubject = Subject<InicioUiEvent>()
     private lateinit var appModel: AppModel
 
-    private lateinit var clienteInfoContenedor: View
-    private lateinit var miPerfilContenedor: View
+    private lateinit var views: MutableList<View>
+    private lateinit var activo: View
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
 
-    private lateinit var inicioButton: Button
-    private lateinit var planesButton: Button
-    private lateinit var miPerfilButton: Button
+    private lateinit var menuButton: ImageButton
+    private lateinit var menuExpandedButton: ImageButton
 
     private lateinit var holaCliente: TextView
     private lateinit var planActual: TextView
     private lateinit var nombreCliente: TextView
     private lateinit var planCliente: TextView
     private lateinit var numCliente: TextView
+    private lateinit var layoutCotitulares: ConstraintLayout
 
     private lateinit var nombre: TextView
     private lateinit var apellido: TextView
@@ -52,24 +64,32 @@ class InicioViewActivity: InicioView, AppCompatActivity() {
         setContentView(R.layout.activity_inicio)
 
         initProperties()
-        initModule()
         initListeners()
+        initModule()
         initWindow()
     }
 
     private fun initProperties(){
-        clienteInfoContenedor = findViewById(R.id.louyatClienteInfo)
-        miPerfilContenedor = findViewById(R.id.louyatMiPerfil)
+        views = mutableListOf()
+        views.add(findViewById(R.id.layout_inicio))
+        views.add(findViewById(R.id.layout_perfil))
+        activo = views[0]
+        drawerLayout = findViewById(R.id.home_drawer_layout)
 
-        inicioButton = findViewById(R.id.BotonInicio)
-        planesButton = findViewById(R.id.BotonPlanes)
-        miPerfilButton = findViewById(R.id.BotonPerfil)
+        navigationView = findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+        navigationView.setCheckedItem(R.id.nav_inicio)
+
+        menuButton = findViewById(R.id.menu_button)
+
+        menuExpandedButton = navigationView.getHeaderView(0).findViewById(R.id.menu_expanded_button)
 
         holaCliente = findViewById(R.id.holaCliente)
         planActual = findViewById(R.id.planActual)
         nombreCliente = findViewById(R.id.nombreCliente)
         planCliente = findViewById(R.id.planCliente)
         numCliente = findViewById(R.id.numAfiliado)
+        layoutCotitulares = findViewById(R.id.cotitulars_layaut)
 
         nombre = findViewById(R.id.nombre)
         apellido = findViewById(R.id.apellido)
@@ -82,50 +102,20 @@ class InicioViewActivity: InicioView, AppCompatActivity() {
         sexo = findViewById(R.id.sexo)
     }
 
-    private fun initListeners() {
-        inicioButton.setOnClickListener {
-            invisibleMiPerfil()
-            visibleMiClienteInfo()
-        }
-        miPerfilButton.setOnClickListener {
-            invisibleClienteInfo()
-            visibleMiPerfil()
-        }
-    }
-
     private fun initModule(){
-        appModel = AppModelInjector.getLoginModel()
+        appModel = AppModelInjector.getAppModel()
     }
 
     private fun initWindow(){
         updateStateInicioComponets(appModel.getClient())
-        invisibleMiPerfil()
         updateClienteInfoComponets()
         updateMiPerfilComponets()
     }
 
-    private fun invisibleMiPerfil(){
-        runOnUiThread {
-            miPerfilContenedor.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun visibleMiPerfil(){
-        runOnUiThread {
-            miPerfilContenedor.visibility = View.VISIBLE
-        }
-    }
-
-    private fun invisibleClienteInfo(){
-        runOnUiThread {
-            clienteInfoContenedor.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun visibleMiClienteInfo(){
-        runOnUiThread {
-            clienteInfoContenedor.visibility = View.VISIBLE
-        }
+    private fun switchView(index: Int) {
+        activo.visibility = INVISIBLE
+        activo = views[index]
+        activo.visibility = VISIBLE
     }
 
     private fun updateStateInicioComponets(user : User){
@@ -147,7 +137,7 @@ class InicioViewActivity: InicioView, AppCompatActivity() {
     }
     private fun updateClienteInfoComponets(){
         runOnUiThread{
-            holaCliente.text = "Hola "+uiState.nombre+", "+uiState.apellidos
+            holaCliente.text = "Hola, "+uiState.nombre+uiState.apellidos
             nombreCliente.text = uiState.nombre+" "+uiState.apellidos
             planCliente.text = uiState.nombre_plan
             numCliente.text = "Nro Afiliado:"+uiState.nro_afiliado
@@ -168,9 +158,33 @@ class InicioViewActivity: InicioView, AppCompatActivity() {
         }
     }
 
-    private fun  getClienteNameFromIntent() = intent.getStringExtra(CLIENTE_NAME_EXTRA).toString()
+    private fun logOut() {
+        val intent = Intent(this, LoginViewActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
 
-    companion object{
-        const val CLIENTE_NAME_EXTRA = "clienteName"
+    private fun initListeners() {
+        runOnUiThread {
+            menuButton.setOnClickListener{
+                drawerLayout.openDrawer(GravityCompat.END)
+            }
+
+
+            menuExpandedButton.setOnClickListener{
+                drawerLayout.closeDrawer(GravityCompat.END)
+            }
+        }
+    }
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.nav_inicio -> switchView(0)
+            R.id.nav_planes -> println("")
+            R.id.nav_reintegros -> println("")
+            R.id.nav_perfil -> switchView(1)
+            R.id.nav_cerrarSesion -> logOut()
+        }
+        drawerLayout.closeDrawer(GravityCompat.END)
+        return true
     }
 }

@@ -1,5 +1,6 @@
 package mvc.model.repository
 
+import mvc.model.entities.Cotitular
 import mvc.model.entities.User
 import mvc.model.entities.User.EmptyUser
 import mvc.model.entities.User.ClientUser
@@ -8,6 +9,7 @@ interface ClientRepository {
     suspend fun authenticateUser(username: String, password: String): Boolean
 
     fun getClient(): User
+    fun getCotitulars(): List<Cotitular>
 
 }
 
@@ -15,6 +17,7 @@ internal class ClientRepositoryImpl(
     private val clientStorage: ClientStorage
 ): ClientRepository {
     private lateinit var currentClient: User
+    private lateinit var currentCotitulars: List<Cotitular>
 
     override suspend fun authenticateUser(username: String, password: String): Boolean {
         getClientFromDatabase(username, password)
@@ -29,13 +32,20 @@ internal class ClientRepositoryImpl(
         return currentClient
     }
 
+    override fun getCotitulars(): List<Cotitular> {
+        return currentCotitulars
+    }
+
     private suspend fun getClientFromDatabase(username: String, password: String) {
-        currentClient =
+
             try {
-                clientStorage.getClient(username, password)
+                currentClient = clientStorage.getClient(username, password)
+                (currentClient as? ClientUser)?.let {
+                    currentCotitulars = clientStorage.getCotitulars(it.nro_afiliado)
+                }
             }
             catch (e: Exception) {
-                EmptyUser
+                currentClient = EmptyUser
             }
     }
 }

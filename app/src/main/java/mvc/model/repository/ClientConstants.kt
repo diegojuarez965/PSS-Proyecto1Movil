@@ -1,6 +1,7 @@
 package mvc.model.repository
 
 const val CLIENTS_TABLE = "clientes"
+const val COTITULARS_TABLE = "cotitulares"
 
 const val NRO_AFILIADO = "nro_afiliado"
 const val NOMBRES = "nombres"

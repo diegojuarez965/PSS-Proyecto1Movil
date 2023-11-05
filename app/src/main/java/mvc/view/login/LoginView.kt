@@ -15,7 +15,7 @@ import com.example.ospifakmobileversion.R
 import mvc.model.AppModel
 import mvc.model.AppModelInjector
 import mvc.view.AppViewInjector
-import mvc.view.inicio.InicioViewActivity
+import mvc.view.home.InicioViewActivity
 import observers.Observable
 import observers.Subject
 
@@ -24,7 +24,6 @@ interface LoginView {
     val uiState: LoginUiState
 
     fun navigateToInitialWindow(user: String)
-    fun navigateToRecoverPassword()
 }
 
 internal class LoginViewActivity: AppCompatActivity(), LoginView {
@@ -34,7 +33,6 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
     private lateinit var title: TextView
     private lateinit var username: EditText
     private lateinit var password: EditText
-    private lateinit var recoverPassword: Button
     private lateinit var singIn: Button
     private lateinit var loading: ProgressBar
 
@@ -43,12 +41,8 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
 
     override fun navigateToInitialWindow(user: String) {
         val intent = Intent(this, InicioViewActivity::class.java)
-        intent.putExtra(InicioViewActivity.CLIENTE_NAME_EXTRA, user)
         startActivity(intent)
-    }
-
-    override fun navigateToRecoverPassword() {
-        TODO("Not yet implemented")
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,26 +57,18 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
 
     private fun initModule() {
         AppViewInjector.init(this)
-        appModel = AppModelInjector.getLoginModel()
+        appModel = AppModelInjector.getAppModel()
     }
 
     private fun initProperties() {
         title = findViewById(R.id.title)
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
-        recoverPassword = findViewById(R.id.recover_password)
         singIn = findViewById(R.id.login)
         loading = findViewById(R.id.loading)
     }
 
     private fun initListeners() {
-        recoverPassword.setOnClickListener {
-            hideKeyboard(username)
-            hideKeyboard(password)
-
-            notifyRecoverAction()
-        }
-
         singIn.setOnClickListener {
             switchLoadingVisibility()
             updateUser()
@@ -169,10 +155,6 @@ internal class LoginViewActivity: AppCompatActivity(), LoginView {
         runOnUiThread {
             singIn.isEnabled = !singIn.isEnabled
         }
-    }
-
-    private fun notifyRecoverAction() {
-        onActionSubject.notify(LoginUiEvent.recoverPassword)
     }
 
     private fun notifySingInAction() {
